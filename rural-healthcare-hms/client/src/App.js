@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import DoctorDashboard from './pages/DoctorDashboard';
+import PharmacyManager from './components/PharmacyManager';
 import API from './services/api';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showAppointment, setShowAppointment] = useState(false);
+  const [showPharmacyView, setShowPharmacyView] = useState(false);
 
   const [mobileNumber, setMobileNumber] = useState('');
   const [symptoms, setSymptoms] = useState('');
@@ -93,175 +95,211 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-100 to-blue-50 flex flex-col font-sans relative">
       <Navbar 
-        onGoHome={() => {}}
+        onGoHome={() => setShowPharmacyView(false)}
         onOpenLogin={() => setShowLogin(true)} 
         onOpenAppointment={() => setShowAppointment(true)} 
+        onOpenPharmacy={() => setShowPharmacyView(true)}
       />
 
-      {/* 3D Modern Hero Banner Section */}
-      <section className="bg-gradient-to-r from-[#0b2545] via-[#13315c] to-[#0077b6] text-white py-16 px-8 relative overflow-hidden shadow-2xl">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-teal-400/10 rounded-full blur-3xl"></div>
-
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-center relative z-10">
-          <div className="space-y-4">
-            <span className="bg-white/10 text-cyan-300 text-xs px-3.5 py-1.5 rounded-full font-bold border border-white/20 backdrop-blur">
-              ✨ Multi-Speciality Digital Healthcare HMS
-            </span>
-            <h2 className="text-4xl md:text-5xl font-black leading-tight tracking-tight drop-shadow-md">
-              <span className="font-serif italic text-6xl text-cyan-300 block mb-1" style={{ fontFamily: 'cursive' }}>Amit</span>
-              Super Speciality Hospital, Lucknow
-            </h2>
-            <div className="flex items-center gap-3">
-              <div className="flex text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
-              <span className="bg-amber-400/20 text-amber-300 text-xs font-bold px-2.5 py-1 rounded border border-amber-400/30">4.5 / 5.0 Rating</span>
-            </div>
-            <div className="text-sm text-gray-200 space-y-2 pt-2">
-              <p className="flex items-center gap-2">🕒 <span className="font-bold text-white">Open 24/7 Emergency Services</span> | Call +91 739 099 3915</p>
-              <p className="flex items-center gap-2">📍 Hahnemann Chauraha Rd, Viraj Khand - 1, Gomti Nagar, Lucknow, UP 226028</p>
-            </div>
-            <div className="pt-4">
-              <button 
-                onClick={() => setShowAppointment(true)}
-                className="bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-teal-500 hover:to-emerald-600 text-[#0b2545] text-sm px-6 py-3 rounded-xl font-extrabold transition shadow-lg shadow-emerald-500/30 cursor-pointer transform hover:-translate-y-0.5"
-              >
-                Book Instant OPD Token ›
-              </button>
-            </div>
+      {/* Conditional View: Pharmacy Module OR 3D Landing Page */}
+      {showPharmacyView ? (
+        <div className="max-w-7xl mx-auto w-full p-6">
+          <div className="flex justify-between items-center mb-4 bg-white/70 backdrop-blur p-3 rounded-xl border border-gray-200 shadow-sm">
+            <span className="text-xs font-bold text-gray-600">Active Module: <strong>Pharmacy Records Manager</strong></span>
+            <button 
+              onClick={() => setShowPharmacyView(false)} 
+              className="bg-[#0b2545] hover:bg-[#0077b6] text-white text-xs px-4 py-2 rounded-lg font-bold cursor-pointer transition flex items-center gap-2 shadow"
+            >
+              🏠 Return To Main Home Screen
+            </button>
           </div>
-
-          {/* 3D Glassmorphism Live Counter Card */}
-          <div className="bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/20 shadow-2xl relative transform hover:scale-[1.02] transition duration-300">
-            <div className="absolute -top-4 -right-4 bg-teal-400 text-[#0b2545] font-extrabold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow">
-              Live Sync
-            </div>
-            <h3 className="text-2xl font-black text-amber-400 mb-1">Rural Healthcare HMS</h3>
-            <p className="text-xs text-cyan-200">Integrated Ayushman Bharat Health Account (ABHA)</p>
-            
-            <div className="mt-6 p-5 bg-[#0b2545]/80 rounded-2xl border border-cyan-500/30 shadow-inner flex justify-between items-center">
-              <div>
-                <span className="text-xs text-teal-400 font-bold uppercase tracking-wider">Live OPD Serving Queue</span>
-                <p className="text-3xl font-black text-white mt-1">Token Waiting: #{appointments.length}</p>
-                <p className="text-xs text-gray-400 mt-1">Total Patient Tokens Generated Today: {appointments.length + 12}</p>
-              </div>
-              <div className="text-4xl p-3 bg-teal-500/20 rounded-2xl border border-teal-400/30">
-                ⏱️
-              </div>
-            </div>
-          </div>
+          <PharmacyManager />
         </div>
-      </section>
+      ) : (
+        <>
+          {/* 3D Modern Hero Banner Section */}
+          <section className="bg-gradient-to-r from-[#0b2545] via-[#13315c] to-[#0077b6] text-white py-16 px-8 relative overflow-hidden shadow-2xl">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+            <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-teal-400/10 rounded-full blur-3xl"></div>
 
-      {/* Floating Appointment Alert Bar */}
-      <div className="max-w-7xl mx-auto w-full px-6 -mt-6 relative z-20">
-        <div className="bg-gradient-to-r from-[#0b2545] to-[#13315c] text-white py-4 px-8 rounded-2xl flex justify-between items-center shadow-2xl border border-white/20 backdrop-blur">
-          <span className="text-base font-bold flex items-center gap-2">
-            <span className="text-teal-400 text-xl">📞</span> Need Urgent Medical OPD Token Assistance?
-          </span>
-          <div className="flex items-center gap-4">
-            <span className="bg-teal-500 text-[#0b2545] text-xs px-3 py-1 rounded-full font-black">24/7 HELPLINE</span>
-            <span className="text-sm font-extrabold text-cyan-300">+91 739 099 3915</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="max-w-7xl mx-auto w-full px-6 py-10 space-y-10">
-        
-        {/* ABOUT US SECTION */}
-        <section className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-lg border border-gray-200/80">
-          <h2 className="text-2xl font-black text-[#0b2545] mb-4 flex items-center gap-2">
-            <span className="w-2 h-7 bg-[#0077b6] rounded-full inline-block"></span> About Our Healthcare Centre
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8 items-center">
-            <div className="md:col-span-2 text-gray-600 text-sm leading-relaxed space-y-3">
-              <p>
-                Amit Super Speciality Hospital, Lucknow (a unit of Starlit Medical Centre Pvt Ltd), is a multidisciplinary 426 bedded tertiary care hospital providing comprehensive medical care across all medical specialities.
-              </p>
-              <p>
-                Our compassionate care blended with advanced technology helps our clinicians deliver superior clinical outcomes across 39 specialities, including Cardiac sciences, Onco Sciences, Neurosciences, Obstetrics and Gynaecology, Urology, and Kidney Transplant.
-              </p>
-            </div>
-
-            <div className="space-y-4 border-l border-gray-200 pl-6">
-              <div className="flex items-center gap-4 p-3 rounded-2xl bg-red-50/50 border border-red-100">
-                <div className="w-12 h-12 rounded-2xl bg-red-500 text-white flex items-center justify-center font-black text-xs shadow-md">
-                  NABH
+            <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-center relative z-10">
+              <div className="space-y-4">
+                <span className="bg-white/10 text-cyan-300 text-xs px-3.5 py-1.5 rounded-full font-bold border border-white/20 backdrop-blur">
+                  ✨ Multi-Speciality Digital Healthcare HMS
+                </span>
+                <h2 className="text-4xl md:text-5xl font-black leading-tight tracking-tight drop-shadow-md">
+                  Amit Super Speciality Hospital, Lucknow
+                </h2>
+                <div className="flex items-center gap-3">
+                  <div className="flex text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
+                  <span className="bg-amber-400/20 text-amber-300 text-xs font-bold px-2.5 py-1 rounded border border-amber-400/30">4.5 / 5.0 Rating</span>
                 </div>
-                <p className="text-xs text-gray-700"><strong>NABH Accredited</strong> hospital ensuring top clinical quality standard</p>
-              </div>
-              <div className="flex items-center gap-4 p-3 rounded-2xl bg-blue-50/50 border border-blue-100">
-                <div className="w-12 h-12 rounded-2xl bg-blue-800 text-white flex items-center justify-center font-black text-xs shadow-md">
-                  NABL
+                <div className="text-sm text-gray-200 space-y-2 pt-2">
+                  <p className="flex items-center gap-2">🕒 <span className="font-bold text-white">Open 24/7 Emergency Services</span> | Call +91 739 099 3915</p>
+                  <p className="flex items-center gap-2">📍 Near Amity Univerisity, Gomti Nagar, Lucknow, UP</p>
                 </div>
-                <p className="text-xs text-gray-700"><strong>NABL Certified</strong> advanced clinical testing pathology labs</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SPECIALITIES & AMIT KUSHWAHA PROFILE CARD SECTION */}
-        <section id="specialities" className="bg-white p-8 rounded-3xl shadow-lg border border-gray-200">
-          <h2 className="text-2xl font-black text-[#0b2545] mb-6 border-b pb-3">Specialities & Healthcare Leadership</h2>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="md:col-span-2">
-              <div className="flex gap-8 border-b mb-6 text-base font-semibold">
-                <button 
-                  onClick={() => setActiveTab('Specialities')}
-                  className={`pb-2 transition cursor-pointer font-bold ${activeTab === 'Specialities' ? 'border-b-4 border-[#0077b6] text-[#0077b6]' : 'text-gray-400 hover:text-gray-700'}`}
-                >
-                  Specialities
-                </button>
-                <button 
-                  onClick={() => setActiveTab('Procedures')}
-                  className={`pb-2 transition cursor-pointer font-bold ${activeTab === 'Procedures' ? 'border-b-4 border-[#0077b6] text-[#0077b6]' : 'text-gray-400 hover:text-gray-700'}`}
-                >
-                  Procedures
-                </button>
+                <div className="pt-4 flex gap-4">
+                  <button 
+                    onClick={() => setShowAppointment(true)}
+                    className="bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-teal-500 hover:to-emerald-600 text-[#0b2545] text-sm px-6 py-3 rounded-xl font-extrabold transition shadow-lg shadow-emerald-500/30 cursor-pointer transform hover:-translate-y-0.5"
+                  >
+                    Book Instant OPD Token ›
+                  </button>
+                  <button 
+                    onClick={() => setShowPharmacyView(true)}
+                    className="border-2 border-white/40 hover:bg-white/10 text-white text-sm px-6 py-3 rounded-xl font-bold transition cursor-pointer backdrop-blur"
+                  >
+                    Pharmacy Manager
+                  </button>
+                </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
-                {(activeTab === 'Specialities' ? specialitiesList : proceduresList).map((item, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-blue-50/70 transition cursor-pointer border border-gray-200/60 hover:border-blue-300 shadow-sm hover:shadow transform hover:-translate-y-0.5">
-                    <span className="text-2xl">{item.icon}</span>
-                    <span className="text-sm font-bold text-gray-700">{item.name}</span>
+              {/* 3D Glassmorphism Live Counter Card */}
+              <div className="bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/20 shadow-2xl relative transform hover:scale-[1.02] transition duration-300">
+                <div className="absolute -top-4 -right-4 bg-teal-400 text-[#0b2545] font-extrabold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow">
+                  Live Sync
+                </div>
+                <h3 className="text-2xl font-black text-amber-400 mb-1">Rural Healthcare HMS</h3>
+                <p className="text-xs text-cyan-200">Integrated Ayushman Bharat Health Account (ABHA)</p>
+                
+                <div className="mt-6 p-5 bg-[#0b2545]/80 rounded-2xl border border-cyan-500/30 shadow-inner flex justify-between items-center">
+                  <div>
+                    <span className="text-xs text-teal-400 font-bold uppercase tracking-wider">Live OPD Serving Queue</span>
+                    <p className="text-3xl font-black text-white mt-1">Token Waiting: #{appointments.length}</p>
+                    <p className="text-xs text-gray-400 mt-1">Total Patient Tokens Generated Today: {appointments.length + 12}</p>
                   </div>
-                ))}
+                  <div className="text-4xl p-3 bg-teal-500/20 rounded-2xl border border-teal-400/30">
+                    ⏱️
+                  </div>
+                </div>
               </div>
             </div>
+          </section>
 
-            {/* AMIT KUSHWAHA PROFILE CARD */}
-            <div className="bg-gradient-to-br from-[#0b2545] to-[#0077b6] text-white p-6 rounded-3xl flex flex-col items-center text-center justify-between relative overflow-hidden shadow-2xl border border-white/20">
-              <div className="w-full">
-                <div className="relative w-28 h-28 mx-auto mb-4">
-                  <img 
-                    src="/profile.jpg" 
-                    alt="Amit Kushwaha" 
-                    onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=Amit+Kushwaha'; }}
-                    className="w-full h-full object-cover rounded-full border-4 border-cyan-400 shadow-xl"
-                  />
-                  <span className="absolute bottom-1 right-1 bg-emerald-500 w-4 h-4 rounded-full border-2 border-white"></span>
-                </div>
-                <h3 className="text-xl font-black text-white">Amit Kushwaha</h3>
-                <p className="text-xs text-cyan-300 font-bold uppercase tracking-wider mt-1">Lead System Architect & Developer</p>
-                <p className="text-xs text-gray-200 mt-3 leading-relaxed px-2 bg-white/10 p-3 rounded-xl border border-white/10 backdrop-blur">
-                  B.Sc IT scholar passionate about building modern digital healthcare management systems, combining full-stack innovation with seamless user experience.
-                </p>
+          {/* Floating Appointment Alert Bar */}
+          <div className="max-w-7xl mx-auto w-full px-6 -mt-6 relative z-20">
+            <div className="bg-gradient-to-r from-[#0b2545] to-[#13315c] text-white py-4 px-8 rounded-2xl flex justify-between items-center shadow-2xl border border-white/20 backdrop-blur">
+              <span className="text-base font-bold flex items-center gap-2">
+                <span className="text-teal-400 text-xl">📞</span> Need Urgent Medical OPD Token Assistance?
+              </span>
+              <div className="flex items-center gap-4">
+                <span className="bg-teal-500 text-[#0b2545] text-xs px-3 py-1 rounded-full font-black">24/7 HELPLINE</span>
+                <span className="text-sm font-extrabold text-cyan-300">+91 739 099 3915</span>
               </div>
-
-              <button 
-                onClick={() => setShowAppointment(true)}
-                className="mt-6 bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-teal-500 hover:to-emerald-600 text-[#0b2545] text-xs font-black px-5 py-3 rounded-xl flex items-center justify-center gap-2 w-full transition shadow-lg cursor-pointer"
-              >
-                <span>Consult Healthcare Team</span>
-                <span>›</span>
-              </button>
             </div>
           </div>
-        </section>
 
-      </div>
+          {/* Main Content Grid */}
+          <div className="max-w-7xl mx-auto w-full px-6 py-10 space-y-10">
+            
+            {/* 3D ABOUT US SECTION */}
+            <section className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-lg border border-gray-200/80">
+              <h2 className="text-2xl font-black text-[#0b2545] mb-4 flex items-center gap-2">
+                <span className="w-2 h-7 bg-[#0077b6] rounded-full inline-block"></span> About Our Healthcare Centre
+              </h2>
+              <div className="grid md:grid-cols-3 gap-8 items-center">
+                <div className="md:col-span-2 text-gray-600 text-sm leading-relaxed space-y-3">
+                  <p>
+                    Amit Super Speciality Hospital, Lucknow (a unit of Starlit Medical Centre Pvt Ltd), is a multidisciplinary 426 bedded tertiary care hospital providing comprehensive medical care across all medical specialities.
+                  </p>
+                  <p>
+                    Our compassionate care blended with advanced technology helps our clinicians deliver superior clinical outcomes across 39 specialities, including Cardiac sciences, Onco Sciences, Neurosciences, Obstetrics and Gynaecology, Urology, and Kidney Transplant.
+                  </p>
+                </div>
+
+                <div className="space-y-4 border-l border-gray-200 pl-6">
+                  <div className="flex items-center gap-4 p-3 rounded-2xl bg-red-50/50 border border-red-100">
+                    <div className="w-12 h-12 rounded-2xl bg-red-500 text-white flex items-center justify-center font-black text-xs shadow-md">
+                      NABH
+                    </div>
+                    <p className="text-xs text-gray-700"><strong>NABH Accredited</strong> hospital ensuring top clinical quality standard</p>
+                  </div>
+                  <div className="flex items-center gap-4 p-3 rounded-2xl bg-blue-50/50 border border-blue-100">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-800 text-white flex items-center justify-center font-black text-xs shadow-md">
+                      NABL
+                    </div>
+                    <p className="text-xs text-gray-700"><strong>NABL Certified</strong> advanced clinical testing pathology labs</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3D Stat Counters */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 pt-8 border-t border-gray-200 text-center">
+                <div className="p-4 bg-gradient-to-b from-blue-50 to-white rounded-2xl border border-blue-100 shadow-sm">
+                  <h3 className="text-4xl font-black text-[#0077b6]">426</h3>
+                  <p className="text-xs font-bold text-gray-500 mt-1">Beds Facility</p>
+                </div>
+                <div className="p-4 bg-gradient-to-b from-blue-50 to-white rounded-2xl border border-blue-100 shadow-sm">
+                  <h3 className="text-4xl font-black text-[#0077b6]">1000+</h3>
+                  <p className="text-xs font-bold text-gray-500 mt-1">Trained Staff</p>
+                </div>
+                <div className="p-4 bg-gradient-to-b from-blue-50 to-white rounded-2xl border border-blue-100 shadow-sm">
+                  <h3 className="text-4xl font-black text-[#0077b6]">150+</h3>
+                  <p className="text-xs font-bold text-gray-500 mt-1">Doctors</p>
+                </div>
+                <div className="p-4 bg-gradient-to-b from-blue-50 to-white rounded-2xl border border-blue-100 shadow-sm">
+                  <h3 className="text-4xl font-black text-[#0077b6]">40</h3>
+                  <p className="text-xs font-bold text-gray-500 mt-1">Specialities</p>
+                </div>
+              </div>
+            </section>
+
+            {/* SPECIALITIES SECTION */}
+            <section id="specialities" className="bg-white p-8 rounded-3xl shadow-lg border border-gray-200">
+              <h2 className="text-2xl font-black text-[#0b2545] mb-6 border-b pb-3">Specialities & Procedures</h2>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="md:col-span-2">
+                  <div className="flex gap-8 border-b mb-6 text-base font-semibold">
+                    <button 
+                      onClick={() => setActiveTab('Specialities')}
+                      className={`pb-2 transition cursor-pointer font-bold ${activeTab === 'Specialities' ? 'border-b-4 border-[#0077b6] text-[#0077b6]' : 'text-gray-400 hover:text-gray-700'}`}
+                    >
+                      Specialities
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('Procedures')}
+                      className={`pb-2 transition cursor-pointer font-bold ${activeTab === 'Procedures' ? 'border-b-4 border-[#0077b6] text-[#0077b6]' : 'text-gray-400 hover:text-gray-700'}`}
+                    >
+                      Procedures
+                    </button>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {(activeTab === 'Specialities' ? specialitiesList : proceduresList).map((item, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-blue-50/70 transition cursor-pointer border border-gray-200/60 hover:border-blue-300 shadow-sm hover:shadow transform hover:-translate-y-0.5">
+                        <span className="text-2xl">{item.icon}</span>
+                        <span className="text-sm font-bold text-gray-700">{item.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-[#009688] to-[#004d40] text-white p-8 rounded-3xl flex flex-col justify-between relative overflow-hidden shadow-xl">
+                  <div>
+                    <h3 className="text-2xl font-black">Looking for an Expert</h3>
+                    <p className="text-xs text-white/90 mt-2 leading-relaxed">
+                      Amit Healthcare is home to some of the eminent doctors in the world.
+                    </p>
+                    <button 
+                      onClick={() => setShowAppointment(true)}
+                      className="mt-8 bg-white text-[#004d40] hover:bg-teal-50 text-xs font-black px-5 py-3 rounded-xl flex items-center justify-between w-full transition shadow-lg cursor-pointer"
+                    >
+                      <span>Find & Consult Doctor</span>
+                      <span>›</span>
+                    </button>
+                  </div>
+
+                  <div className="mt-8 text-center text-7xl opacity-20">
+                    👨‍⚕️
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </>
+      )}
 
       {/* LOGIN MODAL */}
       {showLogin && (
@@ -312,7 +350,7 @@ function App() {
         </div>
       )}
 
-      {/* BOOK APPOINTMENT MODAL */}
+      {/* BOOK APPOINTMENT MODAL WITH SYMPTOMS INPUT */}
       {showAppointment && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center p-4 z-50">
           <div className="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl relative border">
