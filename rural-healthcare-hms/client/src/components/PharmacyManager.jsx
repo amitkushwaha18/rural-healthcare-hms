@@ -35,7 +35,7 @@ const PharmacyManager = ({ onBack }) => {
     if (pharmacyCredentials.username === 'admin' && pharmacyCredentials.password === 'admin123') {
       setIsPharmacyAuthenticated(true);
     } else {
-      alert("Invalid Credentials! Default credentials: Username: admin | Password: admin123");
+      alert("Invalid UserId or Password");
     }
   };
 
@@ -176,7 +176,7 @@ Address:\t\t${formData.Address}`;
                 required
                 value={pharmacyCredentials.username}
                 onChange={(e) => setPharmacyCredentials({...pharmacyCredentials, username: e.target.value})}
-                placeholder="Enter username (e.g. admin)"
+                placeholder="Enter username"
                 className="w-full border p-2.5 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 outline-none"
               />
             </div>
@@ -188,7 +188,7 @@ Address:\t\t${formData.Address}`;
                 required
                 value={pharmacyCredentials.password}
                 onChange={(e) => setPharmacyCredentials({...pharmacyCredentials, password: e.target.value})}
-                placeholder="Enter password (e.g. admin123)"
+                placeholder="Enter password"
                 className="w-full border p-2.5 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 outline-none"
               />
             </div>
@@ -200,11 +200,6 @@ Address:\t\t${formData.Address}`;
               Access Pharmacy Database
             </button>
           </form>
-
-          <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200 text-[11px] text-amber-800 text-center font-medium">
-            <strong>Default Credentials:</strong><br/>
-            Username: <code className="bg-amber-100 px-1 py-0.5 rounded">admin</code> | Password: <code className="bg-amber-100 px-1 py-0.5 rounded">admin123</code>
-          </div>
         </div>
       </div>
     );
