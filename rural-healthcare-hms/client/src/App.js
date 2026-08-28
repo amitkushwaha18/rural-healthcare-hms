@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import DoctorDashboard from './pages/DoctorDashboard';
+import PharmacyManager from './components/PharmacyManager';
 import API from './services/api';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showAppointment, setShowAppointment] = useState(false);
+  const [showPharmacyView, setShowPharmacyView] = useState(false);
 
   const [mobileNumber, setMobileNumber] = useState('');
   const [symptoms, setSymptoms] = useState('');
@@ -64,6 +66,10 @@ function App() {
     );
   }
 
+  if (showPharmacyView) {
+    return <PharmacyManager onBack={() => setShowPharmacyView(false)} />;
+  }
+
   const specialitiesList = [
     { name: 'GI Sciences', icon: '➕' },
     { name: 'Liver Transplant and Biliary Sciences', icon: '🫁' },
@@ -93,12 +99,13 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-100 to-blue-50 flex flex-col font-sans relative">
       <Navbar 
-        onGoHome={() => {}}
+        onGoHome={() => setShowPharmacyView(false)}
         onOpenLogin={() => setShowLogin(true)} 
         onOpenAppointment={() => setShowAppointment(true)} 
+        onOpenPharmacy={() => setShowPharmacyView(true)}
       />
 
-      {/* Hero Banner */}
+      {/* Hero Banner Section */}
       <section className="bg-gradient-to-r from-[#0b2545] via-[#13315c] to-[#0077b6] text-white py-16 px-8 relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
         <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-teal-400/10 rounded-full blur-3xl"></div>
@@ -108,9 +115,8 @@ function App() {
             <span className="bg-white/10 text-cyan-300 text-xs px-3.5 py-1.5 rounded-full font-bold border border-white/20 backdrop-blur">
               ✨ Multi-Speciality Digital Healthcare HMS
             </span>
-            <h2 className="text-4xl md:text-5xl font-black leading-tight tracking-tight drop-shadow-md">
-              <span className="font-serif italic text-6xl text-cyan-300 block mb-1" style={{ fontFamily: 'cursive' }}>Amit</span>
-              Super Speciality Hospital, Lucknow
+            <h2 className="text-4xl md:text-5xl font-black leading-tight tracking-tight drop-shadow-md text-white">
+              Amit Super Speciality Hospital, Lucknow
             </h2>
             <div className="flex items-center gap-3">
               <div className="flex text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
@@ -120,7 +126,7 @@ function App() {
               <p className="flex items-center gap-2">🕒 <span className="font-bold text-white">Open 24/7 Emergency Services</span> | Call +91 739 099 3915</p>
               <p className="flex items-center gap-2">📍 Hahnemann Chauraha Rd, Viraj Khand - 1, Gomti Nagar, Lucknow, UP 226028</p>
             </div>
-            <div className="pt-4">
+            <div className="pt-4 flex items-center gap-4">
               <button 
                 onClick={() => setShowAppointment(true)}
                 className="bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-teal-500 hover:to-emerald-600 text-[#0b2545] text-sm px-6 py-3 rounded-xl font-extrabold transition shadow-lg shadow-emerald-500/30 cursor-pointer transform hover:-translate-y-0.5"
