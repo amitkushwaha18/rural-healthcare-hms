@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 
 const PharmacyManager = ({ onBack }) => {
+  // Login Guard State
+  const [isPharmacyAuthenticated, setIsPharmacyAuthenticated] = useState(false);
+  const [pharmacyCredentials, setPharmacyCredentials] = useState({ username: '', password: '' });
+
   const [formData, setFormData] = useState({
     NameOfTablets: 'Aspirin',
     Ref: '',
@@ -26,11 +30,19 @@ const PharmacyManager = ({ onBack }) => {
   const [records, setRecords] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
+  const handlePharmacyLoginSubmit = (e) => {
+    e.preventDefault();
+    if (pharmacyCredentials.username === 'admin' && pharmacyCredentials.password === 'admin123') {
+      setIsPharmacyAuthenticated(true);
+    } else {
+      alert("Invalid Credentials! Default credentials: Username: admin | Password: admin123");
+    }
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 1. Prescription Button Logic
   const handleIPrescription = () => {
     const text = 
 `Name Of Tablets:\t\t${formData.NameOfTablets}
@@ -55,7 +67,6 @@ Address:\t\t${formData.Address}`;
     setPrescriptionText(text);
   };
 
-  // 2. Prescription Data Button (Insert Data)
   const handleIPrescriptionData = () => {
     if (!formData.Ref.trim()) {
       alert("Error: Reference No is required");
@@ -72,7 +83,6 @@ Address:\t\t${formData.Address}`;
     alert("Data Inserted Successfully");
   };
 
-  // 3. Update Button Logic
   const handleUpdateData = () => {
     if (!formData.Ref.trim()) {
       alert("Error: Reference No is required");
@@ -91,7 +101,6 @@ Address:\t\t${formData.Address}`;
     alert("Record Updated Successfully");
   };
 
-  // 4. Delete Button Logic
   const handleIDelete = () => {
     if (!formData.Ref.trim()) {
       alert("Error: Reference No is required for deletion");
@@ -103,7 +112,6 @@ Address:\t\t${formData.Address}`;
     alert("Patient has been deleted successfully");
   };
 
-  // 5. Clear Button Logic
   const handleClear = () => {
     setFormData({
       NameOfTablets: 'Aspirin',
@@ -129,19 +137,80 @@ Address:\t\t${formData.Address}`;
     setSelectedIndex(null);
   };
 
-  // 6. Exit Button Logic
   const handleIExit = () => {
     if (window.confirm("Confirm you want to exit")) {
       onBack();
     }
   };
 
-  // Treeview get_cursor selection logic
   const handleSelectRow = (item, index) => {
     setFormData(item);
     setSelectedIndex(index);
   };
 
+  // Agar login authenticated nahi hai, toh Login Screen dikhayega
+  if (!isPharmacyAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex justify-center items-center p-4">
+        <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full relative border border-slate-700">
+          <button 
+            onClick={onBack}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-xl"
+          >
+            ✕
+          </button>
+
+          <div className="text-center mb-6">
+            <div className="w-14 h-14 bg-amber-500 text-white rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3 shadow-lg">
+              💊
+            </div>
+            <h2 className="text-2xl font-black text-[#0b2545]">Pharmacy Manager Login</h2>
+            <p className="text-xs text-gray-500 mt-1">Authorized personnel only</p>
+          </div>
+
+          <form onSubmit={handlePharmacyLoginSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Username / User ID</label>
+              <input 
+                type="text" 
+                required
+                value={pharmacyCredentials.username}
+                onChange={(e) => setPharmacyCredentials({...pharmacyCredentials, username: e.target.value})}
+                placeholder="Enter username (e.g. admin)"
+                className="w-full border p-2.5 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
+              <input 
+                type="password" 
+                required
+                value={pharmacyCredentials.password}
+                onChange={(e) => setPharmacyCredentials({...pharmacyCredentials, password: e.target.value})}
+                placeholder="Enter password (e.g. admin123)"
+                className="w-full border p-2.5 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 outline-none"
+              />
+            </div>
+
+            <button 
+              type="submit"
+              className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black py-3 rounded-lg text-xs transition shadow-lg cursor-pointer"
+            >
+              Access Pharmacy Database
+            </button>
+          </form>
+
+          <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200 text-[11px] text-amber-800 text-center font-medium">
+            <strong>Default Credentials:</strong><br/>
+            Username: <code className="bg-amber-100 px-1 py-0.5 rounded">admin</code> | Password: <code className="bg-amber-100 px-1 py-0.5 rounded">admin123</code>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Login Hone Ke Baad Main Python Interface Open Hoga
   return (
     <div className="min-h-screen bg-white p-2 font-serif text-sm">
       {/* Title Bar */}
