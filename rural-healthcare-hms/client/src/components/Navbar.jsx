@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Navbar = ({ onGoHome, onOpenLogin, onOpenAppointment, onOpenPharmacy }) => {
+const Navbar = ({ onGoHome, onOpenLogin, onOpenAppointment }) => {
   return (
     <header className="bg-white/90 backdrop-blur-md shadow-lg border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-3.5 flex justify-between items-center">
@@ -13,7 +13,7 @@ const Navbar = ({ onGoHome, onOpenLogin, onOpenAppointment, onOpenPharmacy }) =>
           </div>
           <div>
             <h1 className="font-extrabold text-xl text-[#0b2545] tracking-tight leading-none group-hover:text-[#0077b6] transition">
-              Amit Healthcare
+              <span className="font-serif italic text-2xl text-[#0077b6] mr-1" style={{ fontFamily: 'cursive' }}>Amit</span> Super Speciality Hospital
             </h1>
             <p className="text-[10px] text-teal-600 font-bold mt-1 tracking-wider uppercase">LUCKNOW CENTRE</p>
           </div>
@@ -31,12 +31,6 @@ const Navbar = ({ onGoHome, onOpenLogin, onOpenAppointment, onOpenPharmacy }) =>
             className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white text-xs px-4 py-2 rounded-lg font-bold shadow-md shadow-teal-500/20 transition cursor-pointer"
           >
             Book OPD Token
-          </button>
-          <button 
-            onClick={onOpenPharmacy}
-            className="bg-[#0077b6] hover:bg-[#0b2545] text-white text-xs px-4 py-2 rounded-lg font-bold shadow-md shadow-blue-500/20 transition cursor-pointer"
-          >
-            💊 Pharmacy Login
           </button>
           <button 
             onClick={onOpenLogin}
