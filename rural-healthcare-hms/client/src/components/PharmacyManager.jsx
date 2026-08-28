@@ -2,331 +2,371 @@ import React, { useState } from 'react';
 
 const PharmacyManager = ({ onBack }) => {
   const [formData, setFormData] = useState({
-    tabletName: 'Ciprofloxacine',
-    refNo: '',
-    dose: '',
-    noOfTablets: '',
-    lot: '',
-    issueDate: '',
-    expDate: '',
-    dailyDose: '',
-    sideEffect: '',
-    furtherInfo: '',
-    storageAdvice: '',
-    bloodPressure: '',
-    patientId: '',
-    nhsNumber: '',
-    patientName: '',
-    dob: '',
-    medication: '',
-    address: ''
+    NameOfTablets: 'Aspirin',
+    Ref: '',
+    Dose: '',
+    NoOfTablets: '',
+    Lot: '',
+    IssueDate: '',
+    ExpDate: '',
+    DailyDose: '',
+    SideEffect: '',
+    FurtherInformation: '',
+    Storage_Advice: '',
+    BloodPressure: '',
+    Medication: '',
+    PatientId: '',
+    NHSNumber: '',
+    PatientName: '',
+    DOB: '',
+    Address: ''
   });
 
+  const [prescriptionText, setPrescriptionText] = useState('');
   const [records, setRecords] = useState([]);
-  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Python logic: Add / Insert Prescription Record
-  const handleAddData = () => {
-    if (!formData.refNo.trim()) {
-      alert("Error inserting data. Reference No is required!");
+  // 1. Prescription Button Logic
+  const handleIPrescription = () => {
+    const text = 
+`Name Of Tablets:\t\t${formData.NameOfTablets}
+Reference No:\t\t${formData.Ref}
+Dose:\t\t\t${formData.Dose}
+No Of Table:\t\t${formData.NoOfTablets}
+Lot:\t\t\t${formData.Lot}
+Issue Date:\t\t${formData.IssueDate}
+Exp Dat:\t\t${formData.ExpDate}
+Daily Dose:\t\t${formData.DailyDose}
+Storage_Advice :\t\t${formData.Storage_Advice}
+NHS Number:\t\t${formData.NHSNumber}
+Patient Nam:\t\t${formData.PatientName}
+DOB:\t\t\t${formData.DOB}
+Blood Pressure:\t\t\t${formData.BloodPressure}
+Medication:\t\t\t${formData.Medication}
+Patient Id:\t\t\t${formData.PatientId}
+FurtherInformation:\t\t\t${formData.FurtherInformation}
+Side Effect:\t\t\t${formData.SideEffect}
+Address:\t\t${formData.Address}`;
+    
+    setPrescriptionText(text);
+  };
+
+  // 2. Prescription Data Button (Insert Data)
+  const handleIPrescriptionData = () => {
+    if (!formData.Ref.trim()) {
+      alert("Error: Reference No is required");
       return;
     }
 
-    const exists = records.some(item => item.refNo === formData.refNo);
+    const exists = records.some(r => r.Ref === formData.Ref);
     if (exists) {
-      alert("Error inserting data. Reference No may already exist.");
+      alert("Error: Reference No already exists!");
       return;
     }
 
     setRecords([...records, formData]);
-    alert("Record Inserted Successfully!");
+    alert("Data Inserted Successfully");
   };
 
-  // Update existing record
+  // 3. Update Button Logic
   const handleUpdateData = () => {
-    if (!formData.refNo) {
-      alert("Please select or enter Reference No to update.");
+    if (!formData.Ref.trim()) {
+      alert("Error: Reference No is required");
       return;
     }
 
-    const index = records.findIndex(r => r.refNo === formData.refNo);
+    const index = records.findIndex(r => r.Ref === formData.Ref);
     if (index === -1) {
-      alert("Record not found to update.");
+      alert("Error: Record with given Reference No not found");
       return;
     }
 
-    const updatedRecords = [...records];
-    updatedRecords[index] = formData;
-    setRecords(updatedRecords);
-    alert("Record Updated Successfully!");
+    const updated = [...records];
+    updated[index] = formData;
+    setRecords(updated);
+    alert("Record Updated Successfully");
   };
 
-  // Delete Record
-  const handleDeleteData = () => {
-    if (!formData.refNo) {
-      alert("Please select or enter Reference No to delete.");
+  // 4. Delete Button Logic
+  const handleIDelete = () => {
+    if (!formData.Ref.trim()) {
+      alert("Error: Reference No is required for deletion");
       return;
     }
 
-    setRecords(records.filter(r => r.refNo !== formData.refNo));
-    handleClearForm();
-    alert("Record Deleted Successfully!");
+    setRecords(records.filter(r => r.Ref !== formData.Ref));
+    handleClear();
+    alert("Patient has been deleted successfully");
   };
 
-  // Clear Form Fields
-  const handleClearForm = () => {
+  // 5. Clear Button Logic
+  const handleClear = () => {
     setFormData({
-      tabletName: 'Ciprofloxacine',
-      refNo: '',
-      dose: '',
-      noOfTablets: '',
-      lot: '',
-      issueDate: '',
-      expDate: '',
-      dailyDose: '',
-      sideEffect: '',
-      furtherInfo: '',
-      storageAdvice: '',
-      bloodPressure: '',
-      patientId: '',
-      nhsNumber: '',
-      patientName: '',
-      dob: '',
-      medication: '',
-      address: ''
+      NameOfTablets: 'Aspirin',
+      Ref: '',
+      Dose: '',
+      NoOfTablets: '',
+      Lot: '',
+      IssueDate: '',
+      ExpDate: '',
+      DailyDose: '',
+      SideEffect: '',
+      FurtherInformation: '',
+      Storage_Advice: '',
+      BloodPressure: '',
+      Medication: '',
+      PatientId: '',
+      NHSNumber: '',
+      PatientName: '',
+      DOB: '',
+      Address: ''
     });
-    setSelectedRecord(null);
+    setPrescriptionText('');
+    setSelectedIndex(null);
   };
 
-  const handleSelectRow = (item) => {
+  // 6. Exit Button Logic
+  const handleIExit = () => {
+    if (window.confirm("Confirm you want to exit")) {
+      onBack();
+    }
+  };
+
+  // Treeview get_cursor selection logic
+  const handleSelectRow = (item, index) => {
     setFormData(item);
-    setSelectedRecord(item);
+    setSelectedIndex(index);
   };
 
   return (
-    <div className="min-h-screen bg-gray-300 p-4 font-sans text-xs">
-      <div className="max-w-7xl mx-auto bg-gray-200 p-4 rounded border border-gray-400 shadow-md">
+    <div className="min-h-screen bg-white p-2 font-serif text-sm">
+      {/* Title Bar */}
+      <div className="border-4 border-double border-gray-600 bg-white p-3 text-center mb-3">
+        <h1 className="text-3xl md:text-4xl font-black text-red-700 tracking-wide">
+          +HOSPITAL MANAGEMENT SYSTEM+
+        </h1>
+      </div>
+
+      {/* DATA FRAME (Left Patient Info + Right Prescription) */}
+      <div className="border-4 border-double border-gray-500 p-3 mb-3 bg-gray-50 grid grid-cols-1 lg:grid-cols-12 gap-4">
         
-        {/* Top Header */}
-        <div className="flex justify-between items-center border-b border-gray-400 pb-3 mb-4">
-          <h1 className="text-2xl font-black text-red-800 tracking-wider">
-            + HOSPITAL MANAGEMENT SYSTEM +
-          </h1>
-          <button 
-            onClick={onBack}
-            className="bg-gray-700 hover:bg-gray-900 text-white font-bold px-4 py-1.5 rounded"
-          >
-            Logout Pharmacy Tab
-          </button>
+        {/* DataframeLeft: Patient Information */}
+        <div className="lg:col-span-8 border-2 border-gray-400 p-3 relative bg-white">
+          <span className="absolute -top-3 left-4 bg-white px-2 font-bold text-gray-800 text-xs">
+            Patient Information
+          </span>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mt-2">
+            
+            {/* Left Column Fields */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Names of Tablets</label>
+                <select 
+                  name="NameOfTablets" 
+                  value={formData.NameOfTablets} 
+                  onChange={handleChange}
+                  className="w-56 border border-gray-400 p-1 text-xs font-bold"
+                >
+                  <option>Aspirin</option>
+                  <option>Cetirizine</option>
+                  <option>Amoxicilline</option>
+                  <option>Ciprofloxacine</option>
+                  <option>Paracetamol</option>
+                  <option>Corona Vaccine</option>
+                  <option>Acetaminophen</option>
+                  <option>adderall</option>
+                  <option>Amlodipine</option>
+                  <option>Ativan</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Reference No :</label>
+                <input type="text" name="Ref" value={formData.Ref} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Dose :</label>
+                <input type="text" name="Dose" value={formData.Dose} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">No Of Tablets :</label>
+                <input type="text" name="NoOfTablets" value={formData.NoOfTablets} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Lot :</label>
+                <input type="text" name="Lot" value={formData.Lot} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Issue Date :</label>
+                <input type="text" name="IssueDate" value={formData.IssueDate} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Exp Date :</label>
+                <input type="text" name="ExpDate" value={formData.ExpDate} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Daily Dose :</label>
+                <input type="text" name="DailyDose" value={formData.DailyDose} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Side Effect :</label>
+                <input type="text" name="SideEffect" value={formData.SideEffect} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+            </div>
+
+            {/* Right Column Fields */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Further Information :</label>
+                <input type="text" name="FurtherInformation" value={formData.FurtherInformation} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Blood Pressure :</label>
+                <input type="text" name="BloodPressure" value={formData.BloodPressure} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Storage_Advice :</label>
+                <input type="text" name="Storage_Advice" value={formData.Storage_Advice} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Medication :</label>
+                <input type="text" name="Medication" value={formData.Medication} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Patient Id :</label>
+                <input type="text" name="PatientId" value={formData.PatientId} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">NHS Number :</label>
+                <input type="text" name="NHSNumber" value={formData.NHSNumber} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Patient Name :</label>
+                <input type="text" name="PatientName" value={formData.PatientName} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Date Of Birth :</label>
+                <input type="text" name="DOB" value={formData.DOB} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs">Patient Address :</label>
+                <input type="text" name="Address" value={formData.Address} onChange={handleChange} className="w-56 border border-gray-400 p-1 text-xs font-bold" />
+              </div>
+            </div>
+
+          </div>
         </div>
 
-        {/* Form Inputs (3 Columns Grid matching Python Layout) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-gray-100 p-4 rounded border border-gray-300 mb-4">
-          
-          {/* Column 1 */}
-          <div className="space-y-2">
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Names Of Tablets :</label>
-              <select 
-                name="tabletName" 
-                value={formData.tabletName} 
-                onChange={handleChange}
-                className="w-full border border-gray-400 p-1.5 rounded bg-white text-xs font-semibold"
-              >
-                <option>Ciprofloxacine</option>
-                <option>Paracetamol</option>
-                <option>Amoxicillin</option>
-                <option>Ibuprofen</option>
-                <option>Azithromycin</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">No Of Tablets :</label>
-              <input type="text" name="noOfTablets" value={formData.noOfTablets} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Exp Date :</label>
-              <input type="text" name="expDate" value={formData.expDate} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" placeholder="DD/MM/YYYY" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Further Information :</label>
-              <input type="text" name="furtherInfo" value={formData.furtherInfo} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Patient Id :</label>
-              <input type="text" name="patientId" value={formData.patientId} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Date Of Birth :</label>
-              <input type="text" name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" placeholder="DD/MM/YYYY" />
-            </div>
-          </div>
-
-          {/* Column 2 */}
-          <div className="space-y-2">
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Ref No :</label>
-              <input type="text" name="refNo" value={formData.refNo} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white font-bold" placeholder="e.g. 101" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Lot :</label>
-              <input type="text" name="lot" value={formData.lot} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Daily Dose :</label>
-              <input type="text" name="dailyDose" value={formData.dailyDose} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Storage Advice :</label>
-              <input type="text" name="storageAdvice" value={formData.storageAdvice} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">NHS Number :</label>
-              <input type="text" name="nhsNumber" value={formData.nhsNumber} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Medication :</label>
-              <input type="text" name="medication" value={formData.medication} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" />
-            </div>
-          </div>
-
-          {/* Column 3 */}
-          <div className="space-y-2">
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Dose :</label>
-              <input type="text" name="dose" value={formData.dose} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Issue Date :</label>
-              <input type="text" name="issueDate" value={formData.issueDate} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" placeholder="DD/MM/YYYY" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Side Effect :</label>
-              <input type="text" name="sideEffect" value={formData.sideEffect} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Blood Pressure :</label>
-              <input type="text" name="bloodPressure" value={formData.bloodPressure} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Patient Name :</label>
-              <input type="text" name="patientName" value={formData.patientName} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white font-semibold" />
-            </div>
-
-            <div>
-              <label className="block font-bold text-gray-800 mb-0.5">Patient Address :</label>
-              <input type="text" name="address" value={formData.address} onChange={handleChange} className="w-full border border-gray-400 p-1 rounded bg-white" />
-            </div>
-          </div>
-
-        </div>
-
-        {/* Python Action Buttons Row */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          <button 
-            onClick={handleAddData} 
-            className="bg-green-800 hover:bg-green-900 text-white font-extrabold px-4 py-2 rounded"
-          >
+        {/* DataframeRight: Prescription Box */}
+        <div className="lg:col-span-4 border-2 border-gray-400 p-3 relative bg-white">
+          <span className="absolute -top-3 left-4 bg-white px-2 font-bold text-gray-800 text-xs">
             Prescription
-          </button>
-          
-          <button 
-            onClick={handleAddData} 
-            className="bg-green-800 hover:bg-green-900 text-white font-extrabold px-4 py-2 rounded"
-          >
-            Prescription Data
-          </button>
+          </span>
 
-          <button 
-            onClick={handleUpdateData} 
-            className="bg-green-800 hover:bg-green-900 text-white font-extrabold px-4 py-2 rounded"
-          >
-            Update
-          </button>
-
-          <button 
-            onClick={handleDeleteData} 
-            className="bg-green-800 hover:bg-green-900 text-white font-extrabold px-4 py-2 rounded"
-          >
-            Delete
-          </button>
-
-          <button 
-            onClick={handleClearForm} 
-            className="bg-green-800 hover:bg-green-900 text-white font-extrabold px-4 py-2 rounded"
-          >
-            Clear
-          </button>
-        </div>
-
-        {/* Live MySQL Database Records Table */}
-        <div className="border border-gray-400 rounded overflow-hidden bg-white">
-          <div className="bg-[#0b2545] text-white p-2 font-bold text-xs flex justify-between items-center">
-            <span>Live MySQL Database Records</span>
-            <span className="text-[10px] text-gray-300">Click row to select</span>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-slate-800 text-white">
-                <tr>
-                  <th className="p-2 border-r border-slate-700">Ref No</th>
-                  <th className="p-2 border-r border-slate-700">Tablet</th>
-                  <th className="p-2 border-r border-slate-700">Patient Name</th>
-                  <th className="p-2 border-r border-slate-700">Dose</th>
-                  <th className="p-2 border-r border-slate-700">BP</th>
-                  <th className="p-2 border-r border-slate-700">Issue Date</th>
-                  <th className="p-2">Patient ID</th>
-                </tr>
-              </thead>
-              <tbody>
-                {records.length === 0 ? (
-                  <tr>
-                    <td colSpan="7" className="text-center p-4 text-gray-500 font-medium">
-                      No MySQL records found
-                    </td>
-                  </tr>
-                ) : (
-                  records.map((item, index) => (
-                    <tr 
-                      key={index} 
-                      onClick={() => handleSelectRow(item)}
-                      className={`border-b cursor-pointer transition ${selectedRecord?.refNo === item.refNo ? 'bg-amber-100 font-semibold' : 'hover:bg-blue-50'}`}
-                    >
-                      <td className="p-2 border-r font-bold">{item.refNo}</td>
-                      <td className="p-2 border-r">{item.tabletName}</td>
-                      <td className="p-2 border-r">{item.patientName}</td>
-                      <td className="p-2 border-r">{item.dose}</td>
-                      <td className="p-2 border-r">{item.bloodPressure}</td>
-                      <td className="p-2 border-r">{item.issueDate}</td>
-                      <td className="p-2">{item.patientId}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          <textarea 
+            readOnly
+            value={prescriptionText}
+            className="w-full h-80 font-mono text-xs border border-gray-300 p-2 leading-relaxed resize-none bg-slate-50 outline-none"
+            placeholder="Click 'Prescription' button to generate text here..."
+          ></textarea>
         </div>
 
       </div>
+
+      {/* BUTTON FRAME */}
+      <div className="border-4 border-double border-gray-500 p-2 mb-3 bg-gray-100 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+        <button onClick={handleIPrescription} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs">Prescription</button>
+        <button onClick={handleIPrescriptionData} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs">Prescription Data</button>
+        <button onClick={handleUpdateData} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs">Update</button>
+        <button onClick={handleIDelete} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs">Delete</button>
+        <button onClick={handleClear} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs">Clear</button>
+        <button onClick={handleIExit} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs">Exit</button>
+      </div>
+
+      {/* DETAILS FRAME / TREEVIEW TABLE */}
+      <div className="border-4 border-double border-gray-500 p-2 bg-white overflow-x-auto">
+        <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
+          <thead>
+            <tr className="bg-gray-200 border-b border-gray-400 font-bold">
+              <th className="p-2 border-r border-gray-300">Name Of Table</th>
+              <th className="p-2 border-r border-gray-300">Reference No.</th>
+              <th className="p-2 border-r border-gray-300">Dose</th>
+              <th className="p-2 border-r border-gray-300">No Of Tablets</th>
+              <th className="p-2 border-r border-gray-300">Lot</th>
+              <th className="p-2 border-r border-gray-300">Issue Date</th>
+              <th className="p-2 border-r border-gray-300">Exp Date</th>
+              <th className="p-2 border-r border-gray-300">Daily Dose</th>
+              <th className="p-2 border-r border-gray-300">Storage_Advice</th>
+              <th className="p-2 border-r border-gray-300">NHS Number</th>
+              <th className="p-2 border-r border-gray-300">Patient Name</th>
+              <th className="p-2 border-r border-gray-300">DOB</th>
+              <th className="p-2 border-r border-gray-300">Blood Pressure</th>
+              <th className="p-2 border-r border-gray-300">Medication</th>
+              <th className="p-2 border-r border-gray-300">Patient ID</th>
+              <th className="p-2 border-r border-gray-300">Further Information</th>
+              <th className="p-2 border-r border-gray-300">Side Effect</th>
+              <th className="p-2">Address</th>
+            </tr>
+          </thead>
+          <tbody>
+            {records.length === 0 ? (
+              <tr>
+                <td colSpan="18" className="text-center p-4 text-gray-500 font-bold">
+                  No records found
+                </td>
+              </tr>
+            ) : (
+              records.map((item, index) => (
+                <tr 
+                  key={index} 
+                  onClick={() => handleSelectRow(item, index)}
+                  className={`border-b border-gray-200 cursor-pointer ${selectedIndex === index ? 'bg-blue-200 font-bold' : 'hover:bg-gray-100'}`}
+                >
+                  <td className="p-2 border-r border-gray-200">{item.NameOfTablets}</td>
+                  <td className="p-2 border-r border-gray-200 font-bold">{item.Ref}</td>
+                  <td className="p-2 border-r border-gray-200">{item.Dose}</td>
+                  <td className="p-2 border-r border-gray-200">{item.NoOfTablets}</td>
+                  <td className="p-2 border-r border-gray-200">{item.Lot}</td>
+                  <td className="p-2 border-r border-gray-200">{item.IssueDate}</td>
+                  <td className="p-2 border-r border-gray-200">{item.ExpDate}</td>
+                  <td className="p-2 border-r border-gray-200">{item.DailyDose}</td>
+                  <td className="p-2 border-r border-gray-200">{item.Storage_Advice}</td>
+                  <td className="p-2 border-r border-gray-200">{item.NHSNumber}</td>
+                  <td className="p-2 border-r border-gray-200">{item.PatientName}</td>
+                  <td className="p-2 border-r border-gray-200">{item.DOB}</td>
+                  <td className="p-2 border-r border-gray-200">{item.BloodPressure}</td>
+                  <td className="p-2 border-r border-gray-200">{item.Medication}</td>
+                  <td className="p-2 border-r border-gray-200">{item.PatientId}</td>
+                  <td className="p-2 border-r border-gray-200">{item.FurtherInformation}</td>
+                  <td className="p-2 border-r border-gray-200">{item.SideEffect}</td>
+                  <td className="p-2">{item.Address}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
     </div>
   );
 };
