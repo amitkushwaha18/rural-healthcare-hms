@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import API from '../services/api';
 
 const PharmacyManager = ({ onBack }) => {
   // Login Guard State
-  const [isPharmacyAuthenticated, setIsPharmacyAuthenticated] = useState(false);
-  const [pharmacyCredentials, setPharmacyCredentials] = useState({ username: '', password: '' });
+  const [isPharmacyAuthenticated, setIsPharmacyAuthenticated] = useState(
+    () => localStorage.getItem('userRole') === 'pharmacy' && Boolean(localStorage.getItem('token'))
+  );
+  const [pharmacyCredentials, setPharmacyCredentials] = useState({ email: '', password: '' });
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const [formData, setFormData] = useState({
     NameOfTablets: 'Aspirin',
@@ -29,13 +34,75 @@ const PharmacyManager = ({ onBack }) => {
   const [prescriptionText, setPrescriptionText] = useState('');
   const [records, setRecords] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const [recordsLoading, setRecordsLoading] = useState(false);
+  const [recordsError, setRecordsError] = useState('');
+  const [isSavingRecord, setIsSavingRecord] = useState(false);
 
-  const handlePharmacyLoginSubmit = (e) => {
+  useEffect(() => {
+    if (!isPharmacyAuthenticated) {
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    const loadRecords = async () => {
+      setRecordsLoading(true);
+      setRecordsError('');
+
+      try {
+        const res = await API.get('/pharmacy');
+        if (!cancelled) {
+          setRecords(Array.isArray(res.data) ? res.data : []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setRecordsError(err.response?.data?.message || 'Unable to load saved patient records.');
+        }
+      } finally {
+        if (!cancelled) {
+          setRecordsLoading(false);
+        }
+      }
+    };
+
+    loadRecords();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isPharmacyAuthenticated]);
+
+  const handlePharmacyLoginSubmit = async (e) => {
     e.preventDefault();
-    if (pharmacyCredentials.username === 'admin' && pharmacyCredentials.password === 'admin123') {
+    setLoginError('');
+    setIsLoggingIn(true);
+
+    try {
+      const res = await API.post('/auth/login', {
+        email: pharmacyCredentials.email.trim().toLowerCase(),
+        password: pharmacyCredentials.password
+      });
+
+      const { token, user } = res.data;
+
+      if (!token || !user?.role) {
+        throw new Error('The server returned an invalid login response.');
+      }
+
+      if (user.role !== 'pharmacy') {
+        throw new Error('This account does not have pharmacy access.');
+      }
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('userRole', user.role);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      setPharmacyCredentials({ email: '', password: '' });
       setIsPharmacyAuthenticated(true);
-    } else {
-      alert("Invalid UserId or Password");
+    } catch (err) {
+      setLoginError(err.response?.data?.message || err.message || 'Login failed. Please try again.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -67,49 +134,81 @@ Address:\t\t${formData.Address}`;
     setPrescriptionText(text);
   };
 
-  const handleIPrescriptionData = () => {
-    if (!formData.Ref.trim()) {
+  const handleIPrescriptionData = async () => {
+    const ref = formData.Ref.trim();
+
+    if (!ref) {
       alert("Error: Reference No is required");
       return;
     }
 
-    const exists = records.some(r => r.Ref === formData.Ref);
+    const exists = records.some(r => r.Ref === ref);
     if (exists) {
       alert("Error: Reference No already exists!");
       return;
     }
 
-    setRecords([...records, formData]);
-    alert("Data Inserted Successfully");
+    setIsSavingRecord(true);
+
+    try {
+      const res = await API.post('/pharmacy', { ...formData, Ref: ref });
+      setRecords(prev => [res.data, ...prev]);
+      setFormData(prev => ({ ...prev, Ref: ref }));
+      alert("Data Inserted Successfully");
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to save patient record.');
+    } finally {
+      setIsSavingRecord(false);
+    }
   };
 
-  const handleUpdateData = () => {
-    if (!formData.Ref.trim()) {
+  const handleUpdateData = async () => {
+    const ref = formData.Ref.trim();
+
+    if (!ref) {
       alert("Error: Reference No is required");
       return;
     }
 
-    const index = records.findIndex(r => r.Ref === formData.Ref);
-    if (index === -1) {
+    const exists = records.some(r => r.Ref === ref);
+    if (!exists) {
       alert("Error: Record with given Reference No not found");
       return;
     }
 
-    const updated = [...records];
-    updated[index] = formData;
-    setRecords(updated);
-    alert("Record Updated Successfully");
+    setIsSavingRecord(true);
+
+    try {
+      const res = await API.put(`/pharmacy/${encodeURIComponent(ref)}`, { ...formData, Ref: ref });
+      setRecords(prev => prev.map(r => (r.Ref === ref ? res.data : r)));
+      alert("Record Updated Successfully");
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to update patient record.');
+    } finally {
+      setIsSavingRecord(false);
+    }
   };
 
-  const handleIDelete = () => {
-    if (!formData.Ref.trim()) {
+  const handleIDelete = async () => {
+    const ref = formData.Ref.trim();
+
+    if (!ref) {
       alert("Error: Reference No is required for deletion");
       return;
     }
 
-    setRecords(records.filter(r => r.Ref !== formData.Ref));
-    handleClear();
-    alert("Patient has been deleted successfully");
+    setIsSavingRecord(true);
+
+    try {
+      await API.delete(`/pharmacy/${encodeURIComponent(ref)}`);
+      setRecords(prev => prev.filter(r => r.Ref !== ref));
+      handleClear();
+      alert("Patient has been deleted successfully");
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete patient record.');
+    } finally {
+      setIsSavingRecord(false);
+    }
   };
 
   const handleClear = () => {
@@ -170,13 +269,13 @@ Address:\t\t${formData.Address}`;
 
           <form onSubmit={handlePharmacyLoginSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Username / User ID</label>
+              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Email / User ID</label>
               <input 
-                type="text" 
+                type="email" 
                 required
-                value={pharmacyCredentials.username}
-                onChange={(e) => setPharmacyCredentials({...pharmacyCredentials, username: e.target.value})}
-                placeholder="Enter username"
+                value={pharmacyCredentials.email}
+                onChange={(e) => setPharmacyCredentials({...pharmacyCredentials, email: e.target.value})}
+                placeholder="pharmacy@phc.gov.in"
                 className="w-full border p-2.5 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 outline-none"
               />
             </div>
@@ -193,11 +292,18 @@ Address:\t\t${formData.Address}`;
               />
             </div>
 
+            {loginError && (
+              <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600">
+                {loginError}
+              </p>
+            )}
+
             <button 
               type="submit"
-              className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black py-3 rounded-lg text-xs transition shadow-lg cursor-pointer"
+              disabled={isLoggingIn}
+              className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black py-3 rounded-lg text-xs transition shadow-lg cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Access Pharmacy Database
+              {isLoggingIn ? 'Logging in...' : 'Access Pharmacy Database'}
             </button>
           </form>
         </div>
@@ -360,15 +466,27 @@ Address:\t\t${formData.Address}`;
       {/* BUTTON FRAME */}
       <div className="border-4 border-double border-gray-500 p-2 mb-3 bg-gray-100 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
         <button onClick={handleIPrescription} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs">Prescription</button>
-        <button onClick={handleIPrescriptionData} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs">Prescription Data</button>
-        <button onClick={handleUpdateData} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs">Update</button>
-        <button onClick={handleIDelete} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs">Delete</button>
+        <button onClick={handleIPrescriptionData} disabled={isSavingRecord} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs disabled:cursor-not-allowed disabled:opacity-60">Prescription Data</button>
+        <button onClick={handleUpdateData} disabled={isSavingRecord} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs disabled:cursor-not-allowed disabled:opacity-60">Update</button>
+        <button onClick={handleIDelete} disabled={isSavingRecord} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs disabled:cursor-not-allowed disabled:opacity-60">Delete</button>
         <button onClick={handleClear} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs">Clear</button>
         <button onClick={handleIExit} className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 text-xs">Exit</button>
       </div>
 
       {/* DETAILS FRAME / TREEVIEW TABLE */}
       <div className="border-4 border-double border-gray-500 p-2 bg-white overflow-x-auto">
+        {recordsError && (
+          <div className="mb-2 border border-red-300 bg-red-50 px-3 py-2 text-xs font-bold text-red-700">
+            {recordsError}
+          </div>
+        )}
+
+        {recordsLoading && (
+          <div className="mb-2 border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700">
+            Loading saved patient records...
+          </div>
+        )}
+
         <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
           <thead>
             <tr className="bg-gray-200 border-b border-gray-400 font-bold">

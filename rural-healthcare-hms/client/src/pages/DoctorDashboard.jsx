@@ -3,6 +3,13 @@ import React, { useState, useEffect } from 'react';
 const DoctorDashboard = ({ appointments = [], setAppointments, onLogout }) => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [rxNotes, setRxNotes] = useState('');
+  const [doctorName] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('user'))?.name || 'Doctor';
+    } catch {
+      return 'Doctor';
+    }
+  });
 
   // Auto-select first waiting patient on component load or state update
   useEffect(() => {
@@ -48,7 +55,7 @@ const DoctorDashboard = ({ appointments = [], setAppointments, onLogout }) => {
           <p className="text-xs text-teal-300">PHC Lucknow — Primary Health Centre</p>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm font-semibold">Dr. Amit Kushwaha</span>
+          <span className="text-sm font-semibold">{doctorName}</span>
           <button 
             onClick={onLogout}
             className="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1.5 rounded font-semibold transition cursor-pointer"

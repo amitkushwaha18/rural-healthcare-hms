@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
 import DoctorDashboard from './pages/DoctorDashboard';
 import PharmacyManager from './components/PharmacyManager';
@@ -13,6 +13,8 @@ function App() {
   const [mobileNumber, setMobileNumber] = useState('');
   const [symptoms, setSymptoms] = useState('');
   const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [activeTab, setActiveTab] = useState('Specialities');
 
   const [appointments, setAppointments] = useState([
@@ -20,17 +22,63 @@ function App() {
     { id: 2, tokenNumber: 2, phone: '9123456789', status: 'Waiting', symptoms: 'Routine Chest Pain Checkup', time: '10:30 AM' }
   ]);
 
+  const clearSession = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('user');
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('userRole');
+
+    if (!token) return;
+
+    if (role === 'doctor') {
+      setIsLoggedIn(true);
+    } else if (role === 'pharmacy') {
+      setShowPharmacyView(true);
+    }
+  }, []);
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
+    setLoginError('');
+    setIsLoggingIn(true);
+
     try {
-      const res = await API.post('/auth/login', loginData);
-      if (res.data.token) {
-        localStorage.setItem('token', res.data.token);
+      const res = await API.post('/auth/login', {
+        email: loginData.email.trim().toLowerCase(),
+        password: loginData.password
+      });
+
+      const { token, user } = res.data;
+
+      if (!token || !user?.role) {
+        throw new Error('The server returned an invalid login response.');
       }
-      setIsLoggedIn(true);
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('userRole', user.role);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      setLoginData({ email: '', password: '' });
       setShowLogin(false);
+
+      if (user.role === 'pharmacy') {
+        setIsLoggedIn(false);
+        setShowPharmacyView(true);
+      } else if (user.role === 'doctor') {
+        setShowPharmacyView(false);
+        setIsLoggedIn(true);
+      } else {
+        clearSession();
+        setLoginError('This account does not have doctor or pharmacy access.');
+      }
     } catch (err) {
-      alert(err.response?.data?.message || 'Invalid Credentials! Check email and password.');
+      setLoginError(err.response?.data?.message || err.message || 'Login failed. Please try again.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -61,13 +109,23 @@ function App() {
       <DoctorDashboard 
         appointments={appointments} 
         setAppointments={setAppointments} 
-        onLogout={() => setIsLoggedIn(false)} 
+        onLogout={() => {
+          clearSession();
+          setIsLoggedIn(false);
+        }} 
       />
     );
   }
 
   if (showPharmacyView) {
-    return <PharmacyManager onBack={() => setShowPharmacyView(false)} />;
+    return (
+      <PharmacyManager
+        onBack={() => {
+          clearSession();
+          setShowPharmacyView(false);
+        }}
+      />
+    );
   }
 
   const specialitiesList = [
@@ -280,7 +338,7 @@ function App() {
               ✕
             </button>
             <h3 className="text-xl font-bold text-[#0b2545]">Login to Portal</h3>
-            <p className="text-xs text-gray-500 mt-1 mb-6">Enter credentials to access doctor dashboard</p>
+            <p className="text-xs text-gray-500 mt-1 mb-6">Enter your doctor or pharmacy credentials</p>
 
             <form onSubmit={handleLoginSubmit}>
               <div className="mb-4">
@@ -307,11 +365,18 @@ function App() {
                 />
               </div>
 
+              {loginError && (
+                <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600">
+                  {loginError}
+                </p>
+              )}
+
               <button 
                 type="submit" 
-                className="w-full bg-[#0b2545] text-white py-2.5 rounded-lg font-semibold hover:bg-[#0077b6] transition cursor-pointer shadow"
+                disabled={isLoggingIn}
+                className="w-full bg-[#0b2545] text-white py-2.5 rounded-lg font-semibold hover:bg-[#0077b6] transition cursor-pointer shadow disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Login
+                {isLoggingIn ? 'Logging in...' : 'Login'}
               </button>
             </form>
           </div>
